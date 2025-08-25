@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def main():
-    st.set_page_config(page_title="Studdy Buddy AI New Latest", page_icon="📖")
+    st.set_page_config(page_title="Studdy Buddy AI", page_icon="📖")
 
     if 'quiz_manager' not in st.session_state:
         st.session_state.quiz_manager = QuizManager()
@@ -19,7 +19,7 @@ def main():
     if 'quiz_submitted' not in st.session_state:
         st.session_state.quiz_submitted = False
 
-    st.title("Studdy Buddy AI")
+    st.title("Studdy Buddy AI Latest")
 
     st.sidebar.header("Quiz Settings")
 

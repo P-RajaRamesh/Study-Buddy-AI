@@ -3,7 +3,8 @@ pipeline {
     environment {
         DOCKER_HUB_REPO = "rajaramesh7410/studybuddy"
         DOCKER_HUB_CREDENTIALS_ID = "dockerhub-token"
-        IMAGE_TAG = "v${BUILD_NUMBER}"
+        IMAGE_TAG = "new_latest"
+        // IMAGE_TAG = "v${BUILD_NUMBER}"
     }
     stages {
         stage('Checkout Github') {
@@ -30,31 +31,31 @@ pipeline {
                 }
             }
         }
-        stage('Update Deployment YAML with New Tag') {
-            steps {
-                script {
-                    sh """
-                    sed -i 's|image: rajaramesh7410/studybuddy:.*|image: rajaramesh7410/studybuddy:${IMAGE_TAG}|' manifests/deployment.yaml
-                    """
-                }
-            }
-        }
+        // stage('Update Deployment YAML with New Tag') {
+        //     steps {
+        //         script {
+        //             sh """
+        //             sed -i 's|image: rajaramesh7410/studybuddy:.*|image: rajaramesh7410/studybuddy:${IMAGE_TAG}|' manifests/deployment.yaml
+        //             """
+        //         }
+        //     }
+        // }
 
-        stage('Commit Updated YAML') {
-            steps {
-                script {
-                    withCredentials([usernamePassword(credentialsId: 'github-token', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
-                        sh '''
-                        git config user.name "P-RajaRamesh"
-                        git config user.email "rajaramesh7410@gmail.com"
-                        git add manifests/deployment.yaml
-                        git commit -m "Update image tag to ${IMAGE_TAG}" || echo "No changes to commit"
-                        git push https://${GIT_USER}:${GIT_PASS}@github.com/P-RajaRamesh/Study-Buddy-AI.git HEAD:main
-                        '''
-                    }
-                }
-            }
-        }
+        // stage('Commit Updated YAML') {
+        //     steps {
+        //         script {
+        //             withCredentials([usernamePassword(credentialsId: 'github-token', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
+        //                 sh '''
+        //                 git config user.name "P-RajaRamesh"
+        //                 git config user.email "rajaramesh7410@gmail.com"
+        //                 git add manifests/deployment.yaml
+        //                 git commit -m "Update image tag to ${IMAGE_TAG}" || echo "No changes to commit"
+        //                 git push https://${GIT_USER}:${GIT_PASS}@github.com/P-RajaRamesh/Study-Buddy-AI.git HEAD:main
+        //                 '''
+        //             }
+        //         }
+        //     }
+        // }
         stage('Install Kubectl & ArgoCD CLI Setup') {
             steps {
                 sh '''

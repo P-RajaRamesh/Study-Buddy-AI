@@ -147,20 +147,39 @@ git push origin main
   - Protocols and ports : Allow All
 ---
 
-### 4. Jenkins Setup
 
-- **Run Jenkins in Docker (DIND Mode)**
+### 7. 🔑 Generate GitHub Personal Access Token
+- Goto Github Settings -> Developer Settings -> Personal Access Token -> Generate new token (classic)
+- Give the following access permissions for the token: 
+  ```
+  admin:org
+  admin:org_hook
+  admin:public_key
+  admin:repo_hook
+  repo
+  workflow
+  ```
 
+### 8. DockerHub Setup
+#### 🐳 Create DockerHub Repository
+1. Go to https://hub.docker.com
+2. Create a new repository `studybuddy`
+3. Now my docker image repo will be *rajaramesh7410/studybuddy*
+#### 🔑 Generate DockerHub Access Token
+1. Go to DockerHub Home Page -> Settings -> Security -> Personal Access Token -> Generate new token
+2. Give some token discription `studybuddyai` and keep the Expiration Date as **None**
+3. Give access permission as *Read, Write, Delete* and click **Generate**
+
+---
+
+### 9. Jenkins Setup
+- **Run Jenkins in Docker (DIND Mode- Docker-in-Docker)**
   - First, check existing networks:
-
     ```bash
     docker network ls
     ```
-
-  - Ensure Jenkins runs on the **same Docker network** as Minikube.
-
+  - Now follow below steps to make sure Jenkins runs on **same Docker network** as Minikube.
   - Run Jenkins container:
-
     ```bash
     docker run -d --name jenkins \
     -p 8080:8080 \
@@ -174,56 +193,35 @@ git push origin main
     ```
 
 - **Verify Jenkins Container**
-
   ```bash
   docker ps                  # Jenkins container should be running
   docker logs jenkins        # Copy the admin password shown here
   ```
 
 - **Access Jenkins Web UI**
-
   - Go to your VM dashboard in GCP
-  - Copy the **External IP (public DNS)** and open:  
-    `http://<EXTERNAL_IP>:8080`
-
-  - If the page doesn't load, set a **firewall rule**:
-
-    - GCP → VPC Network → Firewall → **Create Firewall Rule**
-      - Name: `allow-jenkins`
-      - Description: Allow all traffic (for Jenkins demo)
-      - Logs: Off
-      - Network: `default`
-      - Direction: `ingress`
-      - Action: `allow`
-      - Targets: `All instances`
-      - Source IP ranges: `0.0.0.0/0`
-      - Allowed protocols and ports: `all`
+  - Copy the **External IP (public DNS)** and open:  `http://<EXTERNAL_IP>:8080`
 
 - **Jenkins Setup Steps**
-
   - Paste the initial password from `docker logs jenkins`
   - Click **Install Suggested Plugins**
   - Create Admin User
   - Skip agent security warning (ignore for now)
 
-- **Install Required Plugins**
-
+- **Install Required Plugins** in Jenkins Web UI
   - Navigate to: **Manage Jenkins → Plugins**
     - Install:
       - Docker
       - Docker Pipeline
       - Kubernetes
 
-- **Restart Jenkins**
-
+- **Restart Jenkins** in SSH
   ```bash
   docker restart jenkins
   ```
+  - Refresh Jenkins Web UI and Log in again after restart.
 
-  - Log in again after restart
-
-- **Install Python and Pip inside Jenkins Container**
-
+- **Install Python and Pip inside Jenkins Container** - **Ignore** (*not required*)
   ```bash
   docker exec -it jenkins bash
   apt update -y
@@ -236,142 +234,69 @@ git push origin main
   exit
   ```
 
-- **Restart Jenkins Again**
-
+- **Restart Jenkins Again** in SSH
   ```bash
   docker restart jenkins
   ```
 
 ✅ Jenkins is now fully set up and ready to use!
 
-### 5. GitHub Integration with Jenkins
-
 ---
 
-#### 🔐 Generate GitHub Personal Access Token
-
-- Go to: **GitHub → Settings → Developer Settings → Personal access tokens → Generate new token**
-- Select **classic token** and give it the following permissions:
-
-  ```
-  admin:org
-  admin:org_hook
-  admin:public_key
-  admin:repo_hook
-  repo
-  workflow
-  ```
-
----
-
-#### 🔑 Add GitHub Credentials to Jenkins
-
+### 10. Github Integration with Jenkins
+#### 🔐 Add GitHub Credentials to Jenkins
 - Go to: **Manage Jenkins → Credentials → Global → Add Credentials**
-  - **Username**: Your GitHub username
-  - **Password**: The token you just generated
+  - **Username**: `P-RajaRamesh`
+  - **Password**: The token you just generated at step 7.
   - **ID**: `github-token`
   - **Description**: `github-token`
 
 ---
 
 #### 🚀 Create a New Pipeline Job in Jenkins
-
 1. Go to Jenkins Dashboard → **New Item**
-2. Enter **Name**: `gitops`
+2. Enter **Name**: `Study-Buddy-AI`
 3. Select **Pipeline**
 4. Scroll to the **Pipeline** section:
    - Select **Pipeline from SCM**
    - Choose **Git**
-   - **Repository URL**: Your GitHub repo link
+   - **Repository URL**: `https://github.com/P-RajaRamesh/Study-Buddy-AI.git`
    - **Credentials**: Select the `github-token` credential
    - **Branch**: `main`
 
 ---
 
-#### 🧱 Create Jenkinsfile in VM
-
-- Open **Pipeline Syntax Generator** in a new tab (for reference)
-- On your VM terminal:
-
-  ```bash
-  vi Jenkinsfile
+#### 📄 Update `Jenkinsfile` in VSCode
+- In Jenkinsfile, comment out the below blocks & stages:
   ```
-
-- Paste the following Jenkins pipeline code:
-
-  ```groovy
-  pipeline {
-      agent any
-      stages {
-          stage('Checkout Github') {
-              steps {
-                  echo 'Checking out code from GitHub...'
-                  checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'github-token', url: 'https://github.com/data-guru0/GitOPS-testing.git']])
-              }
-          }        
-          stage('Build Docker Image') {
-              steps {
-                  echo 'Building Docker image...'
-              }
-          }
-          stage('Push Image to DockerHub') {
-              steps {
-                  echo 'Pushing Docker image to DockerHub...'
-              }
-          }
-          stage('Install Kubectl & ArgoCD CLI') {
-              steps {
-                  echo 'Installing Kubectl and ArgoCD CLI...'
-              }
-          }
-          stage('Apply Kubernetes & Sync App with ArgoCD') {
-              steps {
-                  echo 'Applying Kubernetes and syncing with ArgoCD...'
-              }
-          }
-      }
-  }
+  environment block
+  Update Deployment YAML with New Tag
+  Commit Updated YAML
+  Install Kubectl & ArgoCD CLI Setup
+  Apply Kubernetes & Sync App with ArgoCD
   ```
-
-- Save and exit:
-  
-  - Press `Esc`, then type `:wq!` and hit `Enter`
-
----
-
-#### 🔃 Push Jenkinsfile to GitHub
-
-```bash
-git config --global user.email "gyrogodnon@gmail.com"
-git config --global user.name "data-guru0"
-
-git add .
-git commit -m "commit"
-git push origin main
-```
-
-- When prompted:
-  - **Username**: `data-guru0`
-  - **Password**: GitHub token (paste, it's invisible)
-
+- Open **Pipeline Syntax** in a Jenkins Web UI under your `Study-Buddy-AI` pipeline
+- Provide Pipeline for for SCM, Git, Repo URL, Branch as main and click generate pipeline syntax
+- Now copy that syntax, goto VSCode and paste in Jenkinsfile under `Checkout Github` stage at `checkout scmGit(...`
+- Save the Jenkinsfile in VSCode and push to github by following below steps:
+  ```
+  git add .
+  git comit -m "commit Checkout Github stage"
+  git push origin main
+  ```
 ---
 
 #### ✅ Final Jenkins Test
-
 - Go back to Jenkins Dashboard
-- Click on your `gitops` pipeline
+- Click on your `Study-Buddy-AI` pipeline
 - Click **Build Now**
 
 If successful ✅, GitHub is now **fully integrated** with Jenkins!
 
 ---
 
-### 6. Build and Push Docker Image to DockerHub
-
----
-
+### 11. Build and Push Docker Image to DockerHub
 #### ⚙️ Configure Docker Tool in Jenkins
-
 1. Go to **Jenkins Dashboard → Manage Jenkins → Tools**
 2. Scroll down to **Docker Installations**
 3. Click **Add Docker**
@@ -382,162 +307,106 @@ If successful ✅, GitHub is now **fully integrated** with Jenkins!
 
 ---
 
-#### 💻 Sync Local Code from GitHub
-
-In VS Code terminal:
-
-```bash
-git pull origin main
-```
-
----
-
-#### 🐳 Create DockerHub Repository
-
-1. Go to [https://hub.docker.com](https://hub.docker.com)
-2. Create a new repository, e.g., `dataguru97/testing-9`
-
----
-
-#### 🔐 Generate DockerHub Access Token
-
-1. Go to **DockerHub Account → Account Settings → Security → New Access Token**
-2. Name it appropriately and give it **Read/Write** permission
-3. Copy the generated token
-
----
-
-#### ➕ Add DockerHub Credentials to Jenkins
-
+#### 🔐 Add DockerHub Credentials to Jenkins
 1. Go to **Jenkins → Manage Jenkins → Credentials → Global → Add Credentials**
-   - **Username**: DockerHub username (e.g., `dataguru97`)
-   - **Password**: The DockerHub token
-   - **ID**: `gitops-dockerhub`
-   - **Description**: `DockerHub Access Token`
+   - **Username**: DockerHub username `rajaramesh7410`
+   - **Password**: DockerHub token generated at step 8.
+   - **ID**: `dockerhub-token`
+   - **Description**: `dockerhub-token`
 
 ---
 
-#### 🧱 Update `Jenkinsfile` in VS Code
-
-Add an `environment` block at the top of the pipeline:
-
-Update the `Build Docker Image` and `Push Image to DockerHub` stages like given in Jenkinsfile in repo
-
----
-
-#### 🔁 Push Changes to GitHub
-
-```bash
-git add .
-git commit -m "Add Docker build and push stages"
-git push origin main
-```
-
+#### 📄 Update `Jenkinsfile` in VSCode
+- Un-comment the below blocks & stages in VSCode Jenkinsfile.
+  ```
+  environment block
+  Build Docker Image
+  Push Image to DockerHub
+  ```
+- Save the Jenkinsfile in VSCode and push to github by following below steps:
+  ```
+  git add .
+  git comit -m "commit Docker Build & Push Image to DockerHub"
+  git push origin main
+  ```
 ---
 
 #### 🚀 Trigger Jenkins Pipeline
-
 1. Go to Jenkins Dashboard
-2. Click on your pipeline (`gitops`)
+2. Click on your pipeline (`Study-Buddy-AI`)
 3. Click **Build Now**
 
-✅ If successful, your image will be available on DockerHub:  
-`https://hub.docker.com/r/dataguru97/testing-9`
+✅ If successful, your image will be available on DockerHub Repositories
 
 ---
 
-
-### 7. Install and Configure ArgoCD - Part 1
-
----
-
-#### 🧾 Step 1: Check Existing Namespaces
-
+### 12. Install and Configure ArgoCD - Part 1
+#### 🧐 Step 1: Check Existing Namespaces
 ```bash
 kubectl get namespace
 ```
-
 ---
 
 #### 🆕 Step 2: Create New Namespace for ArgoCD
-
 ```bash
 kubectl create ns argocd
 ```
-
-✅ Run the first command again to verify the namespace is created.
+✅ Run `kubectl get ns` to verify the namespace is created.
 
 ---
 
-#### 📦 Step 3: Install ArgoCD
-
-Apply the ArgoCD installation manifest from GitHub:
-
+#### 📥 Step 3: Install ArgoCD
+Apply the ArgoCD installation manifest from GitHub Official:
 ```bash
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 ```
-
 ---
 
 #### 🔍 Step 4: Validate ArgoCD Components
-
 Check all resources inside the `argocd` namespace:
-
 ```bash
 kubectl get all -n argocd
 ```
-
 ✅ Wait until all resources (pods, deployments, replicasets, etc.) are in **Running** or **Completed** state.  
 ⛔ Do **not proceed** if anything is in **Pending** or **CrashLoopBackOff** state.
 
 ---
 
 #### 🔌 Step 5: Check ArgoCD Service Type
-
 ```bash
 kubectl get svc -n argocd
 ```
-
 You’ll notice that `argocd-server` is of type **ClusterIP**, which is only accessible within the cluster.
-
 We need to change it to **NodePort** to access the UI externally.
 
 ---
 
 #### 🔧 Step 6: Change ClusterIP to NodePort
-
-Edit the service:
-
+- Edit the service:
 ```bash
 kubectl edit svc argocd-server -n argocd
 ```
-
 - Find: `type: ClusterIP`
-- Replace with: `type: NodePort`
-
-Then press:
-- `Ctrl + X` → `Y` → `Enter` (or `:wq!` if in Vim)
-
-Now re-run:
-
+- Press `ins` key and replace with: `type: NodePort`
+- Then press: `esc` key -> Enter `:wq!` to exit
+- Now re-run:
 ```bash
 kubectl get svc -n argocd
 ```
-
-✅ You will now see `argocd-server` with a **NodePort**, such as `31704`.
+✅ You will now see `argocd-server` with a **NodePort**.
 
 ---
 
 #### 🌐 Step 7: Access ArgoCD UI in Browser
-
-Open a **new SSH terminal** and run:
-
+- Run the below command to get the argocd password:
+  ```
+  kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+  ```
+- Open a **new SSH terminal** and run port-forward command to access argocd web UI externally:
 ```bash
 kubectl port-forward --address 0.0.0.0 service/argocd-server 31704:80 -n argocd
 ```
-
-- Now open your browser
-- Enter: `http://<VM_PUBLIC_IP>:31704`
+- Now open your browser & Enter: `http://<VM_PUBLIC_IP>:31704`
 - You may see a privacy warning—proceed anyway
 
 ✅ You’ll land on the ArgoCD **login page**
@@ -545,24 +414,15 @@ kubectl port-forward --address 0.0.0.0 service/argocd-server 31704:80 -n argocd
 ---
 
 #### 🔐 Step 8: Get ArgoCD Admin Password
-
-Open another terminal and run:
-
-```bash
-kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
-```
-
+- After entering ArgoCD login page enter :
 - **Username**: `admin`
-- **Password**: (copy from above)
+- **Password**: (copy from above SSH terminal)
 
-Login and you’re now inside the ArgoCD UI 🎉
-
----
-
-### 8. Install and Configure ArgoCD – Part 2
+✅ Login and you’re now inside the ArgoCD UI 🎉
 
 ---
 
+### 13. Install and Configure ArgoCD – Part 2
 #### ⚙️ Step 1: Locate Your Kubernetes Config File ( Already given this file in Course Materials Download from there )
 
 

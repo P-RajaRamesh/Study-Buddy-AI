@@ -323,6 +323,9 @@ If successful ✅, GitHub is now **fully integrated** with Jenkins!
   Build Docker Image
   Push Image to DockerHub
   ```
+- Make sure to upadte your Dockerhub repo name in `Jenkinsfile` & `deployment.yaml` file:
+- Change the IMAGE_TAG to `v1` in Jenkinsfile
+- Update **image:** of `deployment.yaml` file with `rajaramesh7410/studybuddy:v1`
 - Save the Jenkinsfile in VSCode and push to github by following below steps:
   ```
   git add .
@@ -336,18 +339,18 @@ If successful ✅, GitHub is now **fully integrated** with Jenkins!
 2. Click on your pipeline (`Study-Buddy-AI`)
 3. Click **Build Now**
 
-✅ If successful, your image will be available on DockerHub Repositories
+✅ If successful, your image will be available on DockerHub Repositories with `v1` image tag
 
 ---
 
-### 12. Install and Configure ArgoCD - Part 1
-#### 🧐 Step 1: Check Existing Namespaces
+### 12. ArgoCD - Part 1
+#### 🧐 Step I: Check Existing Namespaces
 ```bash
 kubectl get namespace
 ```
 ---
 
-#### 🆕 Step 2: Create New Namespace for ArgoCD
+#### 🆕 Step II: Create New Namespace for ArgoCD
 ```bash
 kubectl create ns argocd
 ```
@@ -355,14 +358,14 @@ kubectl create ns argocd
 
 ---
 
-#### 📥 Step 3: Install ArgoCD
+#### 📥 Step III: Install ArgoCD
 Apply the ArgoCD installation manifest from GitHub Official:
 ```bash
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 ```
 ---
 
-#### 🔍 Step 4: Validate ArgoCD Components
+#### 🔍 Step IV: Validate ArgoCD Components
 Check all resources inside the `argocd` namespace:
 ```bash
 kubectl get all -n argocd
@@ -372,7 +375,7 @@ kubectl get all -n argocd
 
 ---
 
-#### 🔌 Step 5: Check ArgoCD Service Type
+#### 🔌 Step V: Check ArgoCD Service Type
 ```bash
 kubectl get svc -n argocd
 ```
@@ -381,7 +384,7 @@ We need to change it to **NodePort** to access the UI externally.
 
 ---
 
-#### 🔧 Step 6: Change ClusterIP to NodePort
+#### 🔧 Step VI: Change ClusterIP to NodePort
 - Edit the service:
 ```bash
 kubectl edit svc argocd-server -n argocd
@@ -397,7 +400,7 @@ kubectl get svc -n argocd
 
 ---
 
-#### 🌐 Step 7: Access ArgoCD UI in Browser
+#### 🌐 Step VII: Access ArgoCD UI in Browser
 - Run the below command to get the argocd password:
   ```
   kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
@@ -413,175 +416,134 @@ kubectl port-forward --address 0.0.0.0 service/argocd-server 31704:80 -n argocd
 
 ---
 
-#### 🔐 Step 8: Get ArgoCD Admin Password
+#### 🔐 Step VIII: Get ArgoCD Admin Password
 - After entering ArgoCD login page enter :
 - **Username**: `admin`
-- **Password**: (copy from above SSH terminal)
+- **Password**: (copy from above Step VII SSH terminal)
 
 ✅ Login and you’re now inside the ArgoCD UI 🎉
 
 ---
 
-### 13. Install and Configure ArgoCD – Part 2
-#### ⚙️ Step 1: Locate Your Kubernetes Config File ( Already given this file in Course Materials Download from there )
-
-
-
-Go to the root directory:
-
-```bash
-cd ~
-ls -la
-```
-
-You’ll see a hidden directory `.kube/` — this stores your Kubernetes configuration.
-
-Check the content:
-
-```bash
-ls -la .kube/
-cat .kube/config
-```
-
-Copy the entire content of `.kube/config` into a Notepad for backup and modification.
+### 13. ArgoCD – Part 2
+#### ⚙️ Step I: Locate Your Kubernetes Config File 
+- Go to the root directory & lists all files and directories:
+  ```bash
+  cd ~
+  ls -la
+  ```
+- You’ll see a hidden directory `.kube/` — this stores your Kubernetes configuration.
+- Check the files in `.kube` & display content of the `config` file:
+  ```bash
+  ls -la .kube/
+  cat .kube/config
+  ```
+- Copy the entire content of `.kube/config` into a Notepad++ for backup and modification.
 
 ---
 
-#### 🔐 Step 2: Convert File Paths to Base64 Encoded Strings
-
-The `config` file references files like:
-
-- `/home/gyrogodnon/.minikube/ca.crt`
-- `/home/gyrogodnon/.minikube/profiles/minikube/client.crt`
-- `/home/gyrogodnon/.minikube/profiles/minikube/client.key`
-
-We’ll **inline** the actual base64 content instead of using file paths.
-
-##### 🔁 For Each of These 3 Files, Run:
-
+#### 🔐 Step II: Convert File Paths to Base64 Encoded Strings
+- The `config` file references files like:
+  - `certificate-authority: /home/rajaramesh7410/.minikube/ca.crt`
+  - `client-certificate: /home/rajaramesh7410/.minikube/profiles/minikube/client.crt`
+  - `client-key: /home/rajaramesh7410/.minikube/profiles/minikube/client.key`
+- Edit the file at 3 places:
+  - `certificate-authority` -> `certificate-authority-data`
+  - `client-certificate` -> `client-certificate-data`
+  - `client-key` -> `client-key-data`
+- Now we’ll **inline** the actual base64 content instead of using file paths.
+- 🔁 For Each of These 3 Files, Run:
 ```bash
-cat /home/gyrogodnon/.minikube/ca.crt | base64 -w 0; echo
-cat /home/gyrogodnon/.minikube/profiles/minikube/client.crt | base64 -w 0; echo
-cat /home/gyrogodnon/.minikube/profiles/minikube/client.key | base64 -w 0; echo
+cat /home/rajaramesh7410/.minikube/ca.crt | base64 -w 0; echo
+cat /home/rajaramesh7410/.minikube/profiles/minikube/client.crt | base64 -w 0; echo
+cat /home/rajaramesh7410/.minikube/profiles/minikube/client.key | base64 -w 0; echo
 ```
-
-Copy each base64 string and replace the corresponding `certificate-authority-data`, `client-certificate-data`, and `client-key-data` fields in your config file.
+- Copy each base64 string from above each commands & replace instead of paths at corresponding `certificate-authority-data`, `client-certificate-data`, and `client-key-data` fields in your config file.
 
 ---
 
-#### 📝 Step 3: Save Edited Kubeconfig File
-
+#### 📝 Step III: Saving Edited Kubeconfig File
 - Save this new file as `kubeconfig` (no `.txt` extension) in your **Downloads** folder.
-
-Now open Git Bash and run:
-
+- Now open Git Bash and run:
 ```bash
 cd ~/Downloads
-vi config
+vi kubeconfig
 ```
-
-Paste the full edited config content.
-
-Save it:
-
-- Press `Esc`, then type `:wq!` and hit Enter.
+- Paste the full edited config content.
+- Save by pressing `esc` key, then type `:wq!` and hit Enter.
 
 ---
 
-#### 🔒 Step 4: Add kubeconfig as Secret File in Jenkins
-
-- Go to **Jenkins Dashboard → Manage Jenkins → Credentials**
-- Select: **Global → Add Credentials**
+#### 🔒 Step IV: Add `kubeconfig` as Secret File in Jenkins
+- Go to **Jenkins Dashboard -> Manage Jenkins -> Credentials**
+- Select: **Global -> Add Credentials**
 - Choose: **Kind: Secret file**
-- Upload your edited `config` file
+- Upload your edited `kubeconfig` file
 - Set:
   - **ID**: `kubeconfig`
   - **Description**: `kubeconfig`
-
-Click Save ✅
-
----
-
-#### ☁️ Step 5: Set Up Kubernetes Cluster Access in Jenkins Pipeline
-
-1. Go to Jenkins Dashboard → Pipelines → Open your `GitOps` pipeline
-2. Click **Configure**
-3. Scroll down to **Pipeline section**
-4. Click **Pipeline Syntax** → Opens in a new tab
-5. Select:
-   - **Sample Step**: `kubernetes deploy`
-   - **Kubeconfig**: select `kubeconfig` credential
-   - **Server URL**: Get from this command:
-     ```bash
-     kubectl cluster-info
-     ```
-     (e.g., `https://192.168.49.2:8443`)
-6. Generate the script
-
-Copy the generated script and paste/save it — you’ll use it in your Jenkinsfile in the next stage.
-
----
-
+- Click Save ✅
 ✅ At this point, your Jenkins instance is fully connected to your Kubernetes cluster using a secure kubeconfig setup.
 
 ---
 
-# 9. Install and Configure ArgoCd - Part 3
+#### 📄 Step IV: Update `Jenkinsfile` in VSCode
+- Un-comment the below stages in VSCode Jenkinsfile.
+  ```
+  Install Kubectl & ArgoCD CLI Setup
+  Apply Kubernetes & Sync App with ArgoCD
+  ```
+- In SSH, run the below command to get kubernetes cluster serverUrl: `https://192.168.49.2:8443`
+   ```bash
+   kubectl cluster-info
+   ```
+- Now upadte that serverUrl in Jenkinsfile at stage: `Apply Kubernetes & Sync App with ArgoCD`
+- Copy your ArgoCD server IP & port at same stage in Jenkinsfile at **argocd login** `<VM_EXTERNAL_IP>:31704`
+- Save the Jenkinsfile in VSCode and push to github by following below steps:
+  ```
+  git add .
+  git comit -m "commit: Install Kubectl & ArgoCD CLI. Apply Kubernetes & Sync App with ArgoCD."
+  git push origin main
+  ```
+---
 
-
-### Step 1: Install `kubectl` and ArgoCD CLI on Docker Container
-
-- Open **VS Code** and navigate to your **Jenkinsfile**.
-- Copy-paste the code snippet you have for installing **ArgoCD** and **kubectl**.
-- This snippet will be used in the pipeline.
+### 14. ArgoCd - Part 3
+#### Jenkinsfile stage: `Install Kubectl & ArgoCD CLI Setup` can be removed if followed below steps: **Ignore** (*not required*)
+ - **Install Kubectl & ArgoCD CLI**
+  ```bash
+  docker exec -it jenkins bash
+  curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+  chmod +x kubectl
+  mv kubectl /usr/local/bin/kubectl
+  curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+  chmod +x /usr/local/bin/argocd
+  exit
+  ```
+- **Restart Jenkins Again** in SSH
+  ```bash
+  docker restart jenkins
+  ```
+- You need to login the Jenkins web UI again.
 
 ---
 
-### Step 2: Apply Kubernetes & Sync App with ArgoCD Stage
-
-- Inside the pipeline stage, create a script block.
-- Paste the copied installation commands inside the script.
-- Replace the placeholder IP address with your **own ArgoCD server IP**.
-  
-```groovy
-sh '''
-argocd login 34.72.5.170:31704 --username admin --password $(kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d) --insecure
-'''
-````
-
-> **Note:** Change `34.72.5.170:31704` to your ArgoCD server IP and port.
-
----
-
-### Step 3: Connect GitHub Repository to ArgoCD
-
-1. Open **ArgoCD UI** → Go to **Settings** → **Repositories** → **Connect Repo** via HTTPS.
+#### Connect GitHub Repository to ArgoCD
+1. Open **ArgoCD UI** -> Go to **Settings** -> **Repositories** -> **Connect Repo** via HTTPS.
 2. Fill in details:
-
    * **Type:** git
    * **Name:** anything you want
    * **Project:** default
-   * **Repo URL:** `https://github.com/data-guru0/GitOPS-testing.git`
+   * **Repo URL:** `https://github.com/P-RajaRamesh/Study-Buddy-AI.git`
    * **Username & Password:** Provide GitHub username and token (optional but recommended)
 3. Click **Connect**.
 4. You should see a success message confirming the GitHub repo is connected to ArgoCD.
 
 ---
 
-### Important:
-
-```groovy
-kubectl create secret generic groq-api-secret \
-  --from-literal=GROQ_API_KEY="" \
-  -n argocd
-```
-
-### Step 4: Create a New Application in ArgoCD
-
-* Go to **Applications** → Click **New App**.
+#### Create a New Application in ArgoCD
+* Go to **Applications** -> Click **New App**.
 * Fill in the form:
-
-  * **Name:** Gitops (or any name you prefer)
+  * **Name:** `study`
   * **Project:** default
   * **Sync Policy:** Automatic
   * Tick **Sync Pipeline Resources** and **Self Heal**.
@@ -596,88 +558,76 @@ kubectl create secret generic groq-api-secret \
 
 ---
 
-### Step 5: Modify Jenkinsfile to Sync ArgoCD Application
+#### ❗Important: Inject environment secret in Kubernetes Cluster
+  ```
+  kubectl create secret generic groq-api-secret \
+    --from-literal=GROQ_API_KEY="<YOUR-GROQ-API-KEY>" \
+    -n argocd
+  ```
+---
 
-* In **VS Code**, open your `Jenkinsfile`.
-* In the last stage, add the command to sync the ArgoCD app:
-
-```groovy
-sh 'argocd app sync gitopsapp'
-```
-
-> Replace `gitopsapp` with the actual name of your ArgoCD application.
-
-* Push the changes to GitHub.
-* Go to Jenkins and build the pipeline.
-* On success, you will see a success message.
+#### 📝 Modify the Image Tag & Build new image
+- Change the IMAGE_TAG to `v2` in Jenkinsfile
+- Update **image:** of `deployment.yaml` file with `rajaramesh7410/studybuddy:v2`
+- Save the Jenkinsfile in VSCode and push to github by following below steps:
+  ```
+  git add .
+  git comit -m "commit: v2 image tag"
+  git push origin main
+  ```
+- Go back to Jenkins Dashboard
+- Click on your `Study-Buddy-AI` pipeline
+- Click **Build Now**
+✅ If successful, your image will be available on DockerHub Repositories with `v2` image tag
+🐙 Argocd will deploy the `manifests` files in Kubernetes cluster
 
 ---
 
-### Step 6: Verify ArgoCD Application and Logs
-
+#### Verify ArgoCD Application and Logs
 * Open **ArgoCD UI**.
-* Check the application workflow.
+* Click the `study` application workflow.
 * View logs for each pod to verify deployment.
 
 ---
 
-### Step 7: Access Your Application
-
+#### 📖 Access Your Application
 * On your VM instance terminal, run:
-
-```bash
-kubectl get deploy -n argocd
-```
-
-* You should see your `mlops-app` deployment.
-* Check pods:
-
-```bash
-kubectl get pods -n argocd
-```
-
-* You should see your pods running.
-
+  ```bash
+  kubectl get deploy -n argocd
+  ```
+* You should see your `llmops-app` deployment.
+* Check pods running:
+  ```bash
+  kubectl get pods -n argocd
+  ```
 ---
 
-### Step 8: Allow External Access
-
-* Run the following command to create a tunnel:
-
-```bash
-minikube tunnel
-```
-
+#### 🔌 Allow External Access
+* Run the following command in SSH to create a tunnel:
+  ```bash
+  minikube tunnel
+  ```
 * Open another SSH terminal and run port-forwarding:
-
-```bash
-kubectl port-forward svc/my-service -n argocd --address 0.0.0.0 9090:80
-```
-
+  ```bash
+  kubectl port-forward svc/llmops-service -n argocd --address 0.0.0.0 9090:80
+  ```
 ---
 
-### Step 9: Access the Application from Browser
-
+#### 📖 Access the Application from Browser
 * Copy your VM’s external IP address.
 * Open browser and go to:
-
-```
-http://<VM_EXTERNAL_IP>:9090
-```
-
-* You should see your `mlops-app` running successfully!
-
-
-# 10. Setup Webhooks
+  ```
+  http://<VM_EXTERNAL_IP>:9090
+  ```
+✅ You should see your `llmops-app` running successfully!
 
 ---
 
-### Step 1: Add Webhook in GitHub Repository
-
-1. Go to your **GitHub repo** → **Settings** → **Webhooks** → **Add webhook**.
+#### 🪝 Add Webhook in GitHub Repository
+1. Go to your **GitHub repo** -> **Settings** -> **Webhooks** -> **Add webhook**.
 2. Fill in the details:
-   - **Payload URL:**  
-     `http://34.72.5.170:8080/github-webhook/`  
+   - **Payload URL:** 
+     `http://<YOUR-VM-EXTERNAL-IP>:8080/github-webhook/`  
      *(Replace with your Jenkins URL)*
    - **Content type:** `application/json`
    - **Secret:** *(Not necessary, leave blank)*
@@ -689,9 +639,8 @@ http://<VM_EXTERNAL_IP>:9090
 
 ---
 
-### Step 2: Configure Jenkins to Receive Webhook
-
-1. Open **Jenkins** → Go to your **Pipeline** job → Click **Configure**.
+#### ⚙️ Configure Jenkins web UI to Receive Webhook
+1. Open **Jenkins** -> Go to your **Pipeline** job -> Click **Configure**.
 2. Scroll down to **Build Triggers**.
 3. Tick **GitHub hook trigger for GITScm polling**.
 4. Click **Apply** and **Save**.
@@ -699,38 +648,18 @@ http://<VM_EXTERNAL_IP>:9090
 
 ---
 
-### Step 3: Test the Webhook Trigger
-
+#### 🧪 Test the Webhook Trigger
 1. Open **VS Code**.
-2. Make a slight change in the `Jenkinsfile` (e.g., add or modify an `echo` statement for demonstration).
-3. Commit and **push** the code to GitHub.
-4. Go to Jenkins Dashboard.
-5. You should see your Jenkins pipeline **automatically triggered** and start running.
-
+2. Make a slight change in you application streamlit UI
+3. Change the IMAGE_TAG to `v3` in Jenkinsfile
+4. Update **image:** of `deployment.yaml` file with `rajaramesh7410/studybuddy:v3`
+5. Commit and **push** the code to GitHub.
+6. Go to Jenkins Dashboard.
+7. You should see your Jenkins pipeline **automatically triggered** and start running.
+✅ If successful, your image will be available on DockerHub Repositories with `v3` image tag
+🐙 Argocd will re-deploy the `manifests` files in Kubernetes cluster
 ---
 
-### Final Outcome
-
+#### 🎯 Final Outcome
 - Jenkins will automatically trigger ArgoCD sync as part of the pipeline.
-- This completes the full GitOps pipeline successfully and automatically!
-
----
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+- This completes the full pipeline successfully and automatically!

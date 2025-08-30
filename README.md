@@ -10,7 +10,7 @@ Built with LangChain and Groq LLMs, this app streamlines quiz generation and del
 - **🐳 Deployment:** Containerized & stored on DockerHub, application is deployed to Kubernetes cluster running on Google Cloud VM, with CI/CD pipelines powered by Jenkins & ArgoCD.
 - **🌐 Github:** Github servers as SCM & code version for Jenkins and ArgoCD integration.
 
-## 📦 Installating & Running Locally
+## 💻 Installating & Running Locally
 - **Clone this repo & CD Study-Buddy-AI :**
   ```
   https://github.com/P-RajaRamesh/Study-Buddy-AI.git
@@ -21,7 +21,7 @@ Built with LangChain and Groq LLMs, this app streamlines quiz generation and del
 - **Create ```.env``` file:** ```GROQ_API_KEY="<YOUR-GROQ-API-KEY>"```
 - Finally Run Streamlit app: ```streamlit run application.py```
 
-## 💻 Pushing code to your Github
+## 🌐 Pushing code to your Github
 ```
 git init
 git add .
@@ -50,7 +50,7 @@ git push origin main
   - Use the **SSH** option provided to connect to the VM from the browser.
 ---
 
-### 3. Install Docker
+### 3. 🐋 Install Docker
   - Search: "Install Docker on Ubuntu"
   - Open the first official Docker website (docs.docker.com) - https://docs.docker.com/engine/install/ubuntu/
   - Scroll down and copy the **first big command block** and paste into your VM terminal : 1. Set up Docker's apt repository.
@@ -108,7 +108,7 @@ git push origin main
   ```
 ---
 
-### 4. Install Minikube
+### 4. 🧊 Install Minikube
   - Open browser and search `Install Minikube` 
   - Open the first official site (minikube.sigs.k8s.io) with `minikube start` on it: : https://minikube.sigs.k8s.io/docs/start/?arch=%2Flinux%2Fx86-64%2Fstable%2Fbinary+download
   - Choose:
@@ -125,7 +125,7 @@ git push origin main
       - This uses Docker internally, which is why Docker was installed first
 ---
 
-### 5. Install kubectl
+### 5. </> Install kubectl
   - Search: `Install kubectl on Ubuntu` : https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/
   - Run the first command with `curl` from the official Kubernetes docs: 1. Download the latest release with the command:
     ```
@@ -135,7 +135,7 @@ git push origin main
   - Verify installation: ```kubectl version --client```
 ---
 
-### 6. Create a firewall rule in Google Cloud Console
+### 6. 🧱 Create a firewall rule in Google Cloud Console
   - Search for firewall
   - Create a firewall rule
   - Name the firewall : `study-buddy-ai-firewall`
@@ -160,7 +160,7 @@ git push origin main
   workflow
   ```
 
-### 8. DockerHub Setup
+### 8. 🐋 DockerHub Setup
 #### 🐳 Create DockerHub Repository
 1. Go to https://hub.docker.com
 2. Create a new repository `studybuddy`
@@ -343,7 +343,7 @@ If successful ✅, GitHub is now **fully integrated** with Jenkins!
 
 ---
 
-### 12. ArgoCD - Part 1
+### 12. 🐙 ArgoCD - Part 1
 #### 🧐 Step I: Check Existing Namespaces
 ```bash
 kubectl get namespace
@@ -425,8 +425,8 @@ kubectl port-forward --address 0.0.0.0 service/argocd-server 31704:80 -n argocd
 
 ---
 
-### 13. ArgoCD – Part 2
-#### ⚙️ Step I: Locate Your Kubernetes Config File 
+### 13. 🐙 ArgoCD – Part 2
+#### 📍 Step I: Locate Your Kubernetes Config File 
 - Go to the root directory & lists all files and directories:
   ```bash
   cd ~

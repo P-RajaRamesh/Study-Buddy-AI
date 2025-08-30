@@ -33,7 +33,7 @@ git push origin main
 
 ## ☁️ Deploying in Google CLoud VM:
 ### 1. Goto VM Instances and click **"Create Instance"**
-  - Name: `Anime-Recommender-System`
+  - Name: `study-buddy-ai-vm-instance`
   - Machine Type:
     - Series: `E2`
     - Preset: `Standard`
@@ -243,7 +243,7 @@ git push origin main
 
 ---
 
-### 10. Github Integration with Jenkins
+### 10. 🤝 Github Integration with Jenkins
 #### 🔐 Add GitHub Credentials to Jenkins
 - Go to: **Manage Jenkins → Credentials → Global → Add Credentials**
   - **Username**: `P-RajaRamesh`
@@ -286,7 +286,7 @@ git push origin main
   ```
 ---
 
-#### ✅ Final Jenkins Test
+#### 🧪 Final Jenkins Test
 - Go back to Jenkins Dashboard
 - Click on your `Study-Buddy-AI` pipeline
 - Click **Build Now**
@@ -295,9 +295,9 @@ If successful ✅, GitHub is now **fully integrated** with Jenkins!
 
 ---
 
-### 11. Build and Push Docker Image to DockerHub
+### 11. 🔨 Build and Push Docker Image to DockerHub
 #### ⚙️ Configure Docker Tool in Jenkins
-1. Go to **Jenkins Dashboard → Manage Jenkins → Tools**
+1. Go to **Jenkins Dashboard -> Manage Jenkins -> Tools**
 2. Scroll down to **Docker Installations**
 3. Click **Add Docker**
    - **Name**: `Docker`
@@ -503,7 +503,7 @@ vi kubeconfig
    kubectl cluster-info
    ```
 - Now upadte that serverUrl in Jenkinsfile at stage: `Apply Kubernetes & Sync App with ArgoCD`
-- Copy your ArgoCD server IP & port at same stage in Jenkinsfile at **argocd login** `<VM_EXTERNAL_IP>:31704`
+- Copy & paste your ArgoCD server IP & port at same stage in Jenkinsfile at **argocd login** `<VM_EXTERNAL_IP>:31704`
 - Save the Jenkinsfile in VSCode and push to github by following below steps:
   ```
   git add .
@@ -512,7 +512,7 @@ vi kubeconfig
   ```
 ---
 
-### 14. ArgoCd - Part 3
+### 14. 🐙 ArgoCd - Part 3
 #### ❗Important: Inject environment secret in Kubernetes Cluster
   ```
   kubectl create secret generic groq-api-secret \
@@ -540,7 +540,7 @@ vi kubeconfig
 
 ---
 
-#### Connect GitHub Repository to ArgoCD
+#### 🤝 Connect GitHub Repository to ArgoCD
 1. Open **ArgoCD UI** -> Go to **Settings** -> **Repositories** -> **Connect Repo** via HTTPS.
 2. Fill in details:
    * **Type:** git
@@ -553,7 +553,7 @@ vi kubeconfig
 
 ---
 
-#### Create a New Application in ArgoCD
+#### 🆕 Create a New Application in ArgoCD
 * Go to **Applications** -> Click **New App**.
 * Fill in the form:
   * **Name:** `study`
@@ -668,7 +668,7 @@ vi kubeconfig
 
 ---
 
-#### 🎯 Final Outcome
+### 15. 🎯 Final Outcome
 - Now copy VM External IP in Google Cloud & append :9090 and checkout your Application... `http://<VM_EXTERNAL_IP>:9090`
 - Whenever you push anything to github repo of your application Jenkins will automatically trigger **Build Now**
 - New image will be craeted in Dockerhub repo and changes will be reflected in UI once argocd re-deploys `manifests` files.

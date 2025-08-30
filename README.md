@@ -487,6 +487,7 @@ vi kubeconfig
   - **ID**: `kubeconfig`
   - **Description**: `kubeconfig`
 - Click Save ✅
+  
 ✅ At this point, your Jenkins instance is fully connected to your Kubernetes cluster using a secure kubeconfig setup.
 
 ---
@@ -512,6 +513,14 @@ vi kubeconfig
 ---
 
 ### 14. ArgoCd - Part 3
+#### ❗Important: Inject environment secret in Kubernetes Cluster
+  ```
+  kubectl create secret generic groq-api-secret \
+    --from-literal=GROQ_API_KEY="<YOUR-GROQ-API-KEY>" \
+    -n argocd
+  ```
+---
+
 #### Jenkinsfile stage: `Install Kubectl & ArgoCD CLI Setup` can be removed if followed below steps: **Ignore** (*not required*)
  - **Install Kubectl & ArgoCD CLI**
   ```bash
@@ -562,14 +571,6 @@ vi kubeconfig
 
 ---
 
-#### ❗Important: Inject environment secret in Kubernetes Cluster
-  ```
-  kubectl create secret generic groq-api-secret \
-    --from-literal=GROQ_API_KEY="<YOUR-GROQ-API-KEY>" \
-    -n argocd
-  ```
----
-
 #### 📝 Modify the Image Tag & Build new image
 - Change the IMAGE_TAG to `v2` in Jenkinsfile
 - Update **image:** of `deployment.yaml` file with `rajaramesh7410/studybuddy:v2`
@@ -581,9 +582,10 @@ vi kubeconfig
   ```
 - Go back to Jenkins Dashboard
 - Click on your `Study-Buddy-AI` pipeline
-- Click **Build Now**
-✅ If successful, your image will be available on DockerHub Repositories with `v2` image tag
-🐙 Argocd will deploy the `manifests` files in Kubernetes cluster
+- Click **Build Now**  (you can **ignore** if dont want to biuld the image again.)   <br/>
+
+✅ If successful, your image will be available on DockerHub Repositories with `v2` image tag. <br/>
+🐙 Argocd will deploy the `manifests` files in Kubernetes cluster (even not clicked on **Build Now**).
 
 ---
 
@@ -599,7 +601,7 @@ vi kubeconfig
   ```bash
   kubectl get deploy -n argocd
   ```
-* You should see your `llmops-app` deployment.
+* You should see your (`llmops-app`) deployment.
 * Check pods running:
   ```bash
   kubectl get pods -n argocd
@@ -623,7 +625,7 @@ vi kubeconfig
   ```
   http://<VM_EXTERNAL_IP>:9090
   ```
-✅ You should see your `llmops-app` running successfully!
+✅ You should see your (`llmops-app`) running successfully!
 
 ---
 
@@ -656,14 +658,21 @@ vi kubeconfig
 1. Open **VS Code**.
 2. Make a slight change in you application streamlit UI
 3. Change the IMAGE_TAG to `v3` in Jenkinsfile
-4. Update **image:** of `deployment.yaml` file with `rajaramesh7410/studybuddy:v3`
+4. Update **image:** field of `deployment.yaml` file with `rajaramesh7410/studybuddy:v3`
 5. Commit and **push** the code to GitHub.
 6. Go to Jenkins Dashboard.
-7. You should see your Jenkins pipeline **automatically triggered** and start running.
-✅ If successful, your image will be available on DockerHub Repositories with `v3` image tag
-🐙 Argocd will re-deploy the `manifests` files in Kubernetes cluster
+7. You should see your Jenkins pipeline **automatically triggered** and start running. <br/>
+
+✅ If successful, your image will be available on DockerHub Repositories with `v3` image tag. <br/>
+🐙 Argocd will re-deploy the `manifests` files in Kubernetes cluster.
+
 ---
 
 #### 🎯 Final Outcome
-- Jenkins will automatically trigger ArgoCD sync as part of the pipeline.
-- This completes the full pipeline successfully and automatically!
+- Now copy VM External IP in Google Cloud & append :9090 and checkout your Application... `http://<VM_EXTERNAL_IP>:9090`
+- Whenever you push anything to github repo of your application Jenkins will automatically trigger **Build Now**
+- New image will be craeted in Dockerhub repo and changes will be reflected in UI once argocd re-deploys `manifests` files.
+
+✅ This completes the full pipeline successfully and automatically!
+
+---

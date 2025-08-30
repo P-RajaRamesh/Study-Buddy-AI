@@ -458,7 +458,11 @@ cat /home/rajaramesh7410/.minikube/ca.crt | base64 -w 0; echo
 cat /home/rajaramesh7410/.minikube/profiles/minikube/client.crt | base64 -w 0; echo
 cat /home/rajaramesh7410/.minikube/profiles/minikube/client.key | base64 -w 0; echo
 ```
-- Copy each base64 string from above each commands & replace instead of paths at corresponding `certificate-authority-data`, `client-certificate-data`, and `client-key-data` fields in your config file.
+- Copy each base64 string from above each commands & replace instead of paths at corresponding :
+  - `certificate-authority-data` 
+  - `client-certificate-data` 
+  - `client-key-data` 
+  fields in your config file.
 
 ---
 

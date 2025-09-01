@@ -1,11 +1,11 @@
 pipeline {
     agent any
-    environment {
-        DOCKER_HUB_REPO = "rajaramesh7410/studybuddy"
-        DOCKER_HUB_CREDENTIALS_ID = "dockerhub-token"
-        IMAGE_TAG = "v4"
-        // IMAGE_TAG = "v${BUILD_NUMBER}"
-    }
+    // environment {
+    //     DOCKER_HUB_REPO = "rajaramesh7410/studybuddy"
+    //     DOCKER_HUB_CREDENTIALS_ID = "dockerhub-token"
+    //     IMAGE_TAG = "v1"
+    //     // IMAGE_TAG = "v${BUILD_NUMBER}"
+    // }
     stages {
         stage('Checkout Github') {
             steps {
@@ -13,24 +13,24 @@ pipeline {
                 checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'github-token', url: 'https://github.com/P-RajaRamesh/Study-Buddy-AI.git']])
             }
         }        
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    echo 'Building Docker image...'
-                    dockerImage = docker.build("${DOCKER_HUB_REPO}:${IMAGE_TAG}")
-                }
-            }
-        }
-        stage('Push Image to DockerHub') {
-            steps {
-                script {
-                    echo 'Pushing Docker image to DockerHub...'
-                    docker.withRegistry('https://registry.hub.docker.com' , "${DOCKER_HUB_CREDENTIALS_ID}") {
-                        dockerImage.push("${IMAGE_TAG}")
-                    }
-                }
-            }
-        }
+        // stage('Build Docker Image') {
+        //     steps {
+        //         script {
+        //             echo 'Building Docker image...'
+        //             dockerImage = docker.build("${DOCKER_HUB_REPO}:${IMAGE_TAG}")
+        //         }
+        //     }
+        // }
+        // stage('Push Image to DockerHub') {
+        //     steps {
+        //         script {
+        //             echo 'Pushing Docker image to DockerHub...'
+        //             docker.withRegistry('https://registry.hub.docker.com' , "${DOCKER_HUB_CREDENTIALS_ID}") {
+        //                 dockerImage.push("${IMAGE_TAG}")
+        //             }
+        //         }
+        //     }
+        // }
         // stage('Update Deployment YAML with New Tag') {
         //     steps {
         //         script {
@@ -68,17 +68,17 @@ pipeline {
         //         '''
         //     }
         // }
-        stage('Apply Kubernetes & Sync App with ArgoCD') {
-            steps {
-                script {
-                    kubeconfig(credentialsId: 'kubeconfig', serverUrl: 'https://192.168.49.2:8443') {
-                        sh '''
-                        argocd login 34.59.223.41:31704 --username admin --password $(kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d) --insecure
-                        argocd app sync study
-                        '''
-                    }
-                }
-            }
-        }
+        // stage('Apply Kubernetes & Sync App with ArgoCD') {
+        //     steps {
+        //         script {
+        //             kubeconfig(credentialsId: 'kubeconfig', serverUrl: 'https://192.168.49.2:8443') {
+        //                 sh '''
+        //                 argocd login 34.59.223.41:31704 --username admin --password $(kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d) --insecure
+        //                 argocd app sync study
+        //                 '''
+        //             }
+        //         }
+        //     }
+        // }
     }
 }

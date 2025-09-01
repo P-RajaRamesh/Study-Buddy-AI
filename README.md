@@ -276,7 +276,7 @@ git push origin main
   Apply Kubernetes & Sync App with ArgoCD
   ```
 - Open **Pipeline Syntax** in a Jenkins Web UI under your `Study-Buddy-AI` pipeline
-- Provide Pipeline for for SCM, Git, Repo URL, Branch as main and click generate pipeline syntax
+- Provide Pipeline for SCM, Git, Repo URL, Branch as main and click generate pipeline syntax
 - Now copy that syntax, goto VSCode and paste in Jenkinsfile under `Checkout Github` stage at `checkout scmGit(...`
 - Save the Jenkinsfile in VSCode and push to github by following below steps:
   ```
